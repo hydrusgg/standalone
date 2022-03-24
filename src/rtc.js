@@ -18,7 +18,6 @@ function createRTC() {
 createRTC()
 
 eventHandlers.on('HANDSHAKE', (response) => {
-  console.log(response)
   if (response.error) {
     console.error('Handshake failed: '+response.error)
     process.exit()
