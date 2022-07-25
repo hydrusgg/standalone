@@ -5,7 +5,13 @@ let store
 const eventHandlers = new EventEmitter()
 
 function createRTC() {
-  const websocket = new WebSocket(`wss://rtc.hydrus.gg/${process.env.TOKEN}/plugin`)
+  const websocket = new WebSocket('wss://rtc.hydrus.gg', {
+    headers: {
+      'authorization': process.env.TOKEN,
+      'x-scope': 'plugin',
+      'x-pid': process.pid,
+    }
+  })
   websocket.on('message', (data) => {
     const { event, payload } = JSON.parse(data.toString())
     eventHandlers.emit(event, payload)
@@ -32,14 +38,20 @@ eventHandlers.on('$open', socket => {
   eventHandlers.once('$close', () => clearInterval(interval))
 })
 
-eventHandlers.on('$error', () => {
-  setTimeout(createRTC, 5000)
+eventHandlers.on('$error', error => {
+  if (store == null) {
+    console.error('Failed to connect: %s', error.message)
+    setTimeout(createRTC, 10e3)
+  } else {
+    console.error('Error [%s] %s', error.name, error.message)
+  }
 })
 
 eventHandlers.on('$close', () => {
-  if (store !== null) {
+  if (store != null) {
     console.log('Disconnected from RTC, waiting 10 seconds to try again...')
     setTimeout(createRTC, 10e3)
+    store = null
   }
 })
 
