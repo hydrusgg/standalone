@@ -18,5 +18,9 @@
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
     "ws": "^8.5.0"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": false
   }
 }
